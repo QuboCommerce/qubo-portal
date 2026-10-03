@@ -63,7 +63,7 @@ function loadConfig() {
   const order = (local.order ?? base.order).filter((n) => services[n]);
   return {
     project: base.project, session: local.session ?? base.session, mode, devDigit, services, order,
-    bind: local.bind ?? "127.0.0.1", sitesBaseDomain: local.sitesBaseDomain ?? base.sitesBaseDomain, devSiteSlug: local.devSiteSlug ?? base.devSiteSlug ?? "hm-froid",
+    owner: local.owner ?? base.owner, bind: local.bind ?? "127.0.0.1", sitesBaseDomain: local.sitesBaseDomain ?? base.sitesBaseDomain, devSiteSlug: local.devSiteSlug ?? base.devSiteSlug ?? "hm-froid",
     dataPlane: { ...base.dataPlane, ...local.dataPlane },
   };
 }
@@ -515,6 +515,48 @@ function runLocal(cfg, list) {
   return Promise.all(children.map((ch) => new Promise((r) => ch.on("exit", r))));
 }
 
+const BRANCH_TYPES = ["feat", "fix", "refactor", "docs", "chore", "infra", "experiment"];
+
+function gitOk(args, what) {
+  const r = run("git", ["-C", ROOT, ...args]);
+  if (r.code !== 0) fail(`${what}: ${r.err || r.out}`);
+  return r.out;
+}
+
+const remoteHas = (branch) => run("git", ["-C", ROOT, "ls-remote", "--exit-code", "--heads", "origin", branch]).code === 0;
+
+// <owner>/<type>-<slug> from a fresh origin/staging (origin/main until staging exists).
+function cmdBranch(cfg, [sub, type, ...words]) {
+  if (sub !== "new" || !type || !words.length) fail(`usage: qd branch new <${BRANCH_TYPES.join("|")}> <slug words…>`);
+  if (!BRANCH_TYPES.includes(type)) fail(`type must be one of ${BRANCH_TYPES.join(", ")}`);
+  const slug = words.join("-").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!slug) fail("slug is empty");
+  const owner = cfg.owner || fail('set "owner" in .qubo/dev.local.json (e.g. {"owner":"ali"})');
+  if (gitOk(["status", "--porcelain"], "git status")) fail("working tree has changes — commit or stash first");
+  const base = remoteHas("staging") ? "staging" : "main";
+  if (base === "main") console.log(`${WARN} origin/staging does not exist yet — branching from main`);
+  gitOk(["fetch", "origin", base], `fetch ${base}`);
+  const name = `${owner}/${type}-${slug}`;
+  gitOk(["switch", "-c", name, `origin/${base}`], `create ${name}`);
+  console.log(`${OK} on ${bold(name)} ${dim(`(from origin/${base}; PR with: qd pr)`)}`);
+}
+
+// Push the current branch and open a PR into the base the governance check allows.
+function cmdPr() {
+  const branch = gitBranch();
+  const base = branch.startsWith("hotfix/") ? "main" : branch === "staging" ? "main" : "staging";
+  if (["main", "(detached)"].includes(branch)) fail(`cannot open a PR from ${branch} — qd branch new <type> <slug>`);
+  const check = run("node", [join(ROOT, "scripts/check-branch-governance.mjs"), branch, base], { env: { ...process.env, SOLO_MODE: process.env.SOLO_MODE ?? "1" } });
+  if (check.code !== 0) fail(check.err || check.out);
+  if (!has("gh")) fail("GitHub CLI not installed (https://cli.github.com), or open the PR in the browser");
+  gitOk(["push", "-u", "origin", branch], "push");
+  const subject = gitOk(["log", "-1", "--format=%s"], "git log");
+  const template = join(ROOT, ".github/pull_request_template.md");
+  const args = ["pr", "create", "--base", base, "--head", branch, "--title", subject, ...(existsSync(template) ? ["--body-file", template] : ["--fill"])];
+  const r = spawnSync("gh", args, { cwd: ROOT, stdio: "inherit", shell: IS_WIN });
+  process.exitCode = r.status ?? 1;
+}
+
 function cmdEnv(cfg, name) {
   if (!name) fail("usage: qd env <svc>");
   pickServices(cfg, [name]);
@@ -534,6 +576,8 @@ const HELP = `${bold("qd")} — Qubo dev runner
   qd logs <svc> [-f]    service log (.private/dev/logs/<svc>.log)
   qd doctor             full checks with the fix for each problem
   qd env <svc>          print the environment qd injects
+  qd branch new <type> <slug…>  <owner>/<type>-<slug> from fresh origin/staging
+  qd pr                 push + open a PR (work → staging, hotfix/staging → main)
 
   config: dev.config.json · overrides: .qubo/dev.local.json · QD_MODE=local|remote`;
 
@@ -554,6 +598,8 @@ async function main() {
     case "doctor": return cmdDoctor(cfg);
     case "exec": return cmdExec(cfg, args[0]);
     case "env": return cmdEnv(cfg, args[0]);
+    case "branch": return cmdBranch(cfg, args);
+    case "pr": return cmdPr();
     default: fail(`unknown command "${command}" — qd help`);
   }
 }
