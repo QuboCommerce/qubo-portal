@@ -1,0 +1,16 @@
+{
+  "name": "@qubo/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Wire contract between Qubo instances, the Portal and Cubicles (apps). Versioned independently.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@qubo-portal/plans",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc -p ." },
+  "dependencies": { "@qubo/protocol": "workspace:*" },
+  "devDependencies": { "typescript": "^5" }
+}

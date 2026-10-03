@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# qd launcher (Linux/macOS). Picks Node matching .node-version without relying on shell rc files.
+set -euo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$DIR/../.." && pwd)"
+export PATH="$PATH:$HOME/.bun/bin:$HOME/.local/share/pnpm:$HOME/.local/bin:/usr/local/bin:/opt/homebrew/bin"
+
+want="$(tr -dc '0-9.' <"$ROOT/.node-version" 2>/dev/null | cut -d. -f1)"; want="${want:-20}"
+major() { "$1" -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0; }
+
+candidates=()
+IFS=: read -ra path_dirs <<<"$PATH"
+for d in "${path_dirs[@]}" "$HOME"/.local/share/fnm/aliases/default/bin "$HOME"/.nvm/versions/node/*/bin \
+         "$HOME"/.volta/bin "$HOME"/.local/share/zed/node/*/bin /usr/bin; do
+  [ -x "$d/node" ] && candidates+=("$d/node")
+done
+
+pick=""; fallback=""
+for n in "${candidates[@]}"; do
+  m="$(major "$n")"
+  if [ "$m" = "$want" ]; then pick="$n"; break; fi
+  [ -z "$fallback" ] && [ "$m" -ge "$want" ] && fallback="$n"
+done
+pick="${pick:-$fallback}"
+[ -n "$pick" ] || { echo "qd: Node $want+ not found (fnm install $want)" >&2; exit 127; }
+export PATH="$(dirname "$pick"):$PATH"
+# The Node dir may be /usr/bin, which can hold a stale distro bun; the user's bun install wins.
+[ -x "$HOME/.bun/bin/bun" ] && export PATH="$HOME/.bun/bin:$PATH"
+exec "$pick" "$DIR/qd.mjs" "$@"

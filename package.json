@@ -1,0 +1,23 @@
+{
+  "name": "qubo-portal",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "node scripts/dev/qd.mjs up",
+    "qd": "node scripts/dev/qd.mjs",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "pnpm --filter @qubo-portal/db db:generate",
+    "db:migrate": "pnpm --filter @qubo-portal/db db:migrate",
+    "db:studio": "pnpm --filter @qubo-portal/db studio",
+    "keys:generate": "bun packages/api/scripts/generate-keys.ts",
+    "protocol:sync": "node scripts/sync-protocol.mjs",
+    "postinstall": "node scripts/link-env.mjs",
+    "smoke": "bun packages/api/scripts/smoke.ts"
+  },
+  "devDependencies": {
+    "dotenv": "^18.0.4",
+    "turbo": "^2"
+  },
+  "packageManager": "pnpm@10.24.0"
+}

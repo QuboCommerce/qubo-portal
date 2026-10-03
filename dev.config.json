@@ -1,0 +1,81 @@
+{
+  "$comment": "Dev runner config for scripts/dev/qd. Same project-agnostic slots as every project on the dev box: 1 app (dev.by-ali.dev), 2 sites (<site>.dev.by-ali.dev; marketing uses www), 3 api (api.dev.by-ali.dev). Ports = <devDigit>0<slot>0. Only one project owns the slots at a time: `qd down` in the other repo first. Per-machine overrides: .qubo/dev.local.json (gitignored).",
+  "project": "qubo-portal",
+  "session": "qubo-portal",
+  "devDigit": 4,
+  "sitesBaseDomain": "dev.by-ali.dev",
+  "services": {
+    "api": {
+      "cwd": "packages/api",
+      "cmd": [
+        "bun",
+        "--watch",
+        "src/server.ts"
+      ],
+      "portSlot": 3,
+      "health": "/health",
+      "host": "api.dev.by-ali.dev",
+      "env": {
+        "PORTAL_URL": "{url:portal}",
+        "PORTAL_API_URL": "{url:api}",
+        "BETTER_AUTH_URL": "{url:portal}",
+        "TRUSTED_ORIGINS": "{url:portal}"
+      }
+    },
+    "portal": {
+      "cwd": "apps/portal",
+      "cmd": [
+        "pnpm",
+        "exec",
+        "next",
+        "dev",
+        "--port",
+        "{port}",
+        "--hostname",
+        "{bind}"
+      ],
+      "portSlot": 1,
+      "health": "/login",
+      "host": "dev.by-ali.dev",
+      "env": {
+        "PORTAL_API_INTERNAL_URL": "{internal:api}",
+        "NEXT_PUBLIC_MARKETING_URL": "{url:marketing}",
+        "BETTER_AUTH_URL": "{url:portal}",
+        "PORTAL_API_URL": "{url:api}"
+      }
+    },
+    "marketing": {
+      "cwd": "apps/marketing",
+      "cmd": [
+        "pnpm",
+        "exec",
+        "next",
+        "dev",
+        "--port",
+        "{port}",
+        "--hostname",
+        "{bind}"
+      ],
+      "portSlot": 2,
+      "health": "/",
+      "host": "www.dev.by-ali.dev",
+      "env": {
+        "NEXT_PUBLIC_PORTAL_URL": "{url:portal}",
+        "SITE_URL": "{url:marketing}",
+        "PORTAL_API_INTERNAL_URL": "{internal:api}"
+      }
+    }
+  },
+  "order": [
+    "api",
+    "portal",
+    "marketing"
+  ],
+  "dataPlane": {
+    "containers": [
+      "supabase_db_react"
+    ],
+    "databaseUrlEnv": "DATABASE_URL",
+    "localHint": "Start Docker, then `supabase start`. The portal uses its own database (qubo_portal) on the same Postgres."
+  }
+}
