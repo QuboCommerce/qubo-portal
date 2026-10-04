@@ -41,7 +41,8 @@ export default async function InstancePage({ params }: { params: Promise<{ id: s
             <>
               <Row k="Plan">{licence.planName}</Row>
               <Row k="Last issued">{day(licence.issuedAt)}</Row>
-              <Row k="Sites per organisation">{limit(licence.limits.sitesPerOrg)}</Row>
+              <Row k="Organisations on this server">{limit(licence.limits.orgs)}</Row>
+              <Row k="Sites on this server">{limit(licence.limits.sites)}</Row>
               <Row k="Staff seats">{limit(licence.limits.seats)}</Row>
             </>
           )}
