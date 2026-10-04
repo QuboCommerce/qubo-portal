@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { SITE_URL } from "@/lib/site";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
+
+// Rendered per request so public URLs come from runtime env, not the build.
+export const dynamic = "force-dynamic";
 
 const description = "Qubo is a self-hosted site builder and back office: a visual editor, catalogue, orders and inbox for every site you run, on your own server.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(siteUrl()),
   title: { default: "Qubo: your sites, your server", template: "%s · Qubo" },
   description,
   alternates: { canonical: "/" },

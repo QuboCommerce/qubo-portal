@@ -63,7 +63,8 @@ function loadConfig() {
   const order = (local.order ?? base.order).filter((n) => services[n]);
   return {
     project: base.project, session: local.session ?? base.session, mode, devDigit, services, order,
-    owner: local.owner ?? base.owner, bind: local.bind ?? "127.0.0.1", sitesBaseDomain: local.sitesBaseDomain ?? base.sitesBaseDomain, devSiteSlug: local.devSiteSlug ?? base.devSiteSlug ?? "hm-froid",
+    owner: local.owner ?? base.owner, bind: local.bind ?? "127.0.0.1", sitesBaseDomain: local.sitesBaseDomain ?? base.sitesBaseDomain, devSiteSlug: local.devSiteSlug ?? base.devSiteSlug,
+    env: { ...base.env, ...local.env }, envLocal: { ...base.envLocal, ...local.envLocal }, envRemote: { ...base.envRemote, ...local.envRemote },
     dataPlane: { ...base.dataPlane, ...local.dataPlane },
   };
 }
@@ -87,11 +88,6 @@ function publicUrl(svc) {
   return svc.host ? `https://${svc.host}` : `http://localhost:${svc.port}`;
 }
 
-// Per-checkout secret shared by the admin/api (signer) and storefront (verifier) publish hook.
-function revalidateSecret() {
-  return checkoutSecret("revalidate");
-}
-
 function checkoutSecret(name) {
   const file = join(ROOT, ".qubo", `${name}.secret`);
   if (!existsSync(file)) {
@@ -102,41 +98,33 @@ function checkoutSecret(name) {
 }
 
 // Env for one service. Process env beats .env files in both Next and Bun, so these win.
+// qd only sets project-agnostic keys; everything else comes from `env` / `envLocal` / `envRemote`
+// in dev.config.json, so the runner is identical across projects.
+// Templates: {url:svc} public URL, {internal:svc} loopback URL, {port:svc}, {host:svc},
+//            {secret:name} per-checkout secret, {sitesBaseDomain}, {devSiteSlug}.
 function serviceEnv(cfg, name) {
   const s = cfg.services;
-  const url = (n) => (s[n] ? publicUrl(s[n]) : undefined);
-  const hostOf = (n) => (s[n] ? s[n].host ?? `localhost:${s[n].port}` : undefined);
   const env = {
     PORT: String(s[name].port),
     HOST: cfg.bind,
     QUBO_DEV: "1",
     QUBO_DEV_MODE: cfg.mode,
-    STOREFRONT_URL: url("web"),
-    NEXT_PUBLIC_MARKETING_URL: url("web"),
-    NEXT_PUBLIC_PANEL_URL: url("admin"),
-    NEXT_PUBLIC_QUBO_API_URL: url("api"),
-    // Server-to-server calls skip the proxy.
-    QUBO_API_URL: s.api ? `http://127.0.0.1:${s.api.port}` : undefined,
-    QUBO_TRUSTED_ORIGINS: [url("web"), url("admin")].filter(Boolean).join(","),
+    // Hosts allowed to load dev assets/HMR through the edge (Next allowedDevOrigins).
     QUBO_DEV_ORIGINS: [...Object.values(s).map((x) => x.host), cfg.mode === "remote" && cfg.sitesBaseDomain ? `*.${cfg.sitesBaseDomain}` : null].filter(Boolean).join(","),
-    QUBO_ADMIN_HOSTS: hostOf("admin"),
-    // Remote: sites are <slug>.<sitesBaseDomain>. Local: one site on localhost.
-    PLATFORM_BASE_DOMAIN: cfg.mode === "remote" ? cfg.sitesBaseDomain : undefined,
-    QUBO_DEV_SITE_HOSTS: s.web && !(cfg.mode === "remote" && cfg.sitesBaseDomain) ? `${hostOf("web")}=${cfg.devSiteSlug}` : undefined,
-    QUBO_REVALIDATE_URL: s.web ? `http://localhost:${s.web.port}/api/revalidate` : undefined,
-    QUBO_REVALIDATE_SECRET: s.web ? revalidateSecret() : undefined,
-    BETTER_AUTH_URL: url(name),
     FORCE_COLOR: process.env.NO_COLOR ? undefined : process.env.FORCE_COLOR ?? "1",
   };
-  // Per-service `env` in dev.config.json, so projects with other service names need no qd changes.
-  // Templates: {url:svc} public URL, {internal:svc} loopback URL, {port:svc}, {host:svc}, {secret:name}.
-  const tpl = (v) => String(v).replace(/\{(url|internal|port|host|secret):([A-Za-z0-9_-]+)\}/g, (_, kind, n) => {
-    if (kind === "secret") return checkoutSecret(n);
-    const t = s[n];
-    if (!t) fail(`services.${name}.env references unknown service "${n}"`);
-    return kind === "url" ? publicUrl(t) : kind === "internal" ? `http://127.0.0.1:${t.port}` : kind === "port" ? String(t.port) : t.host ?? `localhost:${t.port}`;
-  });
-  for (const [k, v] of Object.entries(s[name].env ?? {})) env[k] = v === null ? undefined : tpl(v);
+  const tpl = (v) => String(v)
+    .replace(/\{sitesBaseDomain\}/g, () => cfg.sitesBaseDomain ?? fail(`services.${name}.env uses {sitesBaseDomain} but none is configured`))
+    .replace(/\{devSiteSlug\}/g, () => cfg.devSiteSlug ?? fail(`services.${name}.env uses {devSiteSlug} but none is configured`))
+    .replace(/\{(url|internal|port|host|secret):([A-Za-z0-9_-]+)\}/g, (_, kind, n) => {
+      if (kind === "secret") return checkoutSecret(n);
+      const t = s[n];
+      if (!t) fail(`services.${name}.env references unknown service "${n}"`);
+      return kind === "url" ? publicUrl(t) : kind === "internal" ? `http://127.0.0.1:${t.port}` : kind === "port" ? String(t.port) : t.host ?? `localhost:${t.port}`;
+    });
+  const pick = (o) => [o.env, cfg.mode === "remote" ? o.envRemote : o.envLocal];
+  const blocks = [...pick(cfg), ...pick(s[name])];
+  for (const block of blocks) for (const [k, v] of Object.entries(block ?? {})) if (!k.startsWith("$")) env[k] = v === null ? undefined : tpl(v);
   return Object.fromEntries(Object.entries(env).filter(([, v]) => v !== undefined));
 }
 

@@ -7,7 +7,7 @@ import { HeartbeatResponse, LicenseClaims, PROTOCOL_VERSION, RegisterInstanceRes
 const PORTAL = process.env.PORTAL ?? "http://localhost:4010";
 const API = process.env.API ?? "http://localhost:4030";
 const ok = (msg: string) => console.log(`✓ ${msg}`);
-const die = (msg: string, extra?: unknown) => { console.error(`✗ ${msg}`, extra ?? ""); process.exit(1); };
+const die = (msg: string, extra?: unknown): never => { console.error(`✗ ${msg}`, extra ?? ""); process.exit(1); };
 
 let cookie = "";
 async function portal(path: string, body?: unknown) {
@@ -66,10 +66,10 @@ if (tampered.status !== 401) die(`tampered body should be 401, got ${tampered.st
 ok("tampered heartbeat rejected");
 const res = await send(raw, await sign(raw));
 const hbRes = HeartbeatResponse.parse(await res.json());
-if (!hbRes.licenseToken) die("no licence in heartbeat response");
+const licenseToken = hbRes.licenseToken ?? die("no licence in heartbeat response");
 ok(`heartbeat ${res.status}${hbRes.release ? `, update offered: ${hbRes.release.version}` : ""}`);
 
-const { payload, protectedHeader } = await jwtVerify(hbRes.licenseToken, createRemoteJWKSet(new URL(regBody.jwksUrl)));
+const { payload, protectedHeader } = await jwtVerify(licenseToken, createRemoteJWKSet(new URL(regBody.jwksUrl)));
 const claims = LicenseClaims.parse(payload);
 if (claims.sub !== regBody.instanceId || claims.organizationId !== org.id) die("licence claims mismatch", claims);
 ok(`licence verified via JWKS (kid ${protectedHeader.kid}): plan=${claims.plan} instances≤${claims.limits.instances}`);

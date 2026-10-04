@@ -39,7 +39,6 @@
       "host": "dev.by-ali.dev",
       "env": {
         "PORTAL_API_INTERNAL_URL": "{internal:api}",
-        "NEXT_PUBLIC_MARKETING_URL": "{url:marketing}",
         "BETTER_AUTH_URL": "{url:portal}",
         "PORTAL_API_URL": "{url:api}"
       }
@@ -60,7 +59,7 @@
       "health": "/",
       "host": "www.dev.by-ali.dev",
       "env": {
-        "NEXT_PUBLIC_PORTAL_URL": "{url:portal}",
+        "PORTAL_URL": "{url:portal}",
         "SITE_URL": "{url:marketing}",
         "PORTAL_API_INTERNAL_URL": "{internal:api}"
       }
