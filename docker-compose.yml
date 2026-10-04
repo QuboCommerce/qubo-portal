@@ -1,0 +1,74 @@
+# Qubo portal: control plane (portal + API) and marketing site.
+#
+# Portable by design: no edge proxy and no hostnames in here. Every service publishes on
+# 127.0.0.1:<PORT> only; whatever fronts the machine (the Traefik edge next to a Qubo
+# instance, Coolify's proxy, a cloud load balancer) routes hosts to those ports.
+# Public URLs come from .env (see .env.example). Moving the portal to another machine is:
+# dump the database, copy .env, `docker compose up -d`, repoint DNS.
+name: qubo-portal
+
+services:
+  portal-postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-qubo_portal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-qubo_portal}
+    volumes:
+      - portal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qubo_portal} -d ${POSTGRES_DB:-qubo_portal}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  portal-api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORTAL_BIND:-127.0.0.1}:${PORTAL_API_PORT:-3340}:3340"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qubo_portal}:${POSTGRES_PASSWORD}@portal-postgres:5432/${POSTGRES_DB:-qubo_portal}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${PORTAL_URL:?set PORTAL_URL}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-${PORTAL_URL}}
+      PORTAL_URL: ${PORTAL_URL}
+      PORTAL_API_URL: ${PORTAL_API_URL:?set PORTAL_API_URL}
+      PORTAL_SIGNING_KEYS: ${PORTAL_SIGNING_KEYS:?run pnpm keys:generate}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    depends_on:
+      portal-postgres:
+        condition: service_healthy
+
+  portal:
+    build:
+      context: .
+      dockerfile: apps/portal/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORTAL_BIND:-127.0.0.1}:${PORTAL_PORT:-3341}:3000"
+    environment:
+      PORTAL_API_INTERNAL_URL: http://portal-api:3340
+      PORTAL_API_URL: ${PORTAL_API_URL}
+      BETTER_AUTH_URL: ${PORTAL_URL}
+    depends_on:
+      - portal-api
+
+  marketing:
+    build:
+      context: .
+      dockerfile: apps/marketing/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORTAL_BIND:-127.0.0.1}:${MARKETING_PORT:-3342}:3000"
+    environment:
+      SITE_URL: ${SITE_URL:?set SITE_URL}
+      PORTAL_URL: ${PORTAL_URL}
+      PORTAL_API_INTERNAL_URL: http://portal-api:3340
+
+volumes:
+  portal_pgdata:

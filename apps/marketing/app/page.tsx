@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { formatPrice, PLAN_ORDER, PLANS } from "@qubo-portal/plans";
-import { PORTAL_URL } from "@/lib/site";
+import { portalUrl } from "@/lib/site";
 
-export const dynamic = "force-static";
 
 const FEATURES = [
   { title: "Visual editor", body: "Compose pages from blocks, preview on every device, publish instantly. Content lives in your database, not in templates." },
@@ -21,7 +20,7 @@ export default function Home() {
         <nav className="flex items-center gap-6 text-sm">
           <a href="#features" className="text-neutral-600 hover:text-ink">Features</a>
           <a href="#pricing" className="text-neutral-600 hover:text-ink">Pricing</a>
-          <Link href={`${PORTAL_URL}/login`} className="rounded-md bg-ink px-3 py-1.5 font-medium text-white">Sign in</Link>
+          <Link href={`${portalUrl()}/login`} className="rounded-md bg-ink px-3 py-1.5 font-medium text-white">Sign in</Link>
         </nav>
       </header>
 
@@ -32,7 +31,7 @@ export default function Home() {
             Qubo is a self-hosted site builder and back office. Build pages visually, run a shop when you need one, and keep every byte on infrastructure you own.
           </p>
           <div className="mt-10 flex justify-center gap-3">
-            <Link href={`${PORTAL_URL}/login?mode=signup`} className="rounded-md bg-accent px-5 py-3 font-medium text-white">Start free</Link>
+            <Link href={`${portalUrl()}/login?mode=signup`} className="rounded-md bg-accent px-5 py-3 font-medium text-white">Start free</Link>
             <a href="#pricing" className="rounded-md border border-neutral-300 px-5 py-3 font-medium">See pricing</a>
           </div>
         </section>
@@ -65,7 +64,7 @@ export default function Home() {
                   <ul className="mt-6 flex flex-1 flex-col gap-2 text-sm">
                     {p.highlights.map((h) => <li key={h}>✓ {h}</li>)}
                   </ul>
-                  <Link href={`${PORTAL_URL}/login?mode=signup`} className="mt-8 rounded-md border border-neutral-300 px-3 py-2 text-center text-sm font-medium">
+                  <Link href={`${portalUrl()}/login?mode=signup`} className="mt-8 rounded-md border border-neutral-300 px-3 py-2 text-center text-sm font-medium">
                     {p.priceCents ? `Choose ${p.name}` : "Start free"}
                   </Link>
                 </div>

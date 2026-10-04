@@ -32,6 +32,10 @@ only know `PORTAL_URL`, so moving the portal to a product domain is a config cha
    release on the instance's channel when it is behind.
 4. `GET /v1/releases/latest?channel=stable|beta|alpha`.
 
+## Deploy
+
+See `docs/DEPLOY.md`: `docker compose up -d --build` behind any edge proxy, Coolify-ready, movable between machines.
+
 ## Dev
 
 ```sh

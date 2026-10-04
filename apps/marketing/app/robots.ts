@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site";
+import { siteUrl } from "@/lib/site";
+
+// Rendered per request so public URLs come from runtime env, not the build.
+export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {
-  return { rules: [{ userAgent: "*", allow: "/" }], sitemap: `${SITE_URL}/sitemap.xml`, host: SITE_URL };
+  return { rules: [{ userAgent: "*", allow: "/" }], sitemap: `${siteUrl()}/sitemap.xml`, host: siteUrl() };
 }
