@@ -60,7 +60,8 @@ The script adds `docker-compose.traefik.yml` automatically when `.env` sets `EDG
 ## Current production
 
 Mostapha's OVH VPS (`141.227.165.96`, user `dev`), checkout at `/home/dev/qubo/qubo-portal`,
-sharing the Traefik edge of the `tailg` compose project (`EDGE_NETWORK=tailg_wooster-network`).
+behind Coolify's Traefik (`EDGE_NETWORK=coolify`, `EDGE_ENTRYPOINT_HTTPS=https`,
+`EDGE_ENTRYPOINT_HTTP=http`). Coolify UI: `ssh -N -L 8000:127.0.0.1:8000 qubo@<ip>` → http://localhost:8000.
 
 | Host | Service |
 | --- | --- |

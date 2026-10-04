@@ -4,6 +4,9 @@
 #   EDGE_NETWORK=<existing traefik network>   MARKETING_HOST=qubo.by-ali.dev
 #   PORTAL_HOST=portal.qubo.by-ali.dev        PORTAL_API_HOST=api.portal.qubo.by-ali.dev
 #   CERT_RESOLVER=letsencrypt
+#   EDGE_ENTRYPOINT_HTTPS=https EDGE_ENTRYPOINT_HTTP=http   (Coolify's Traefik; defaults websecure/web)
+# Each service gets an HTTP router that redirects to HTTPS, so it works whether or not
+# the edge redirects globally.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
 services:
   portal-api:
@@ -13,8 +16,13 @@ services:
       traefik.enable: "true"
       traefik.docker.network: ${EDGE_NETWORK:?set EDGE_NETWORK}
       traefik.http.routers.qubo-portal-api.rule: Host(`${PORTAL_API_HOST:?set PORTAL_API_HOST}`)
-      traefik.http.routers.qubo-portal-api.entrypoints: websecure
+      traefik.http.routers.qubo-portal-api.entrypoints: ${EDGE_ENTRYPOINT_HTTPS:-websecure}
       traefik.http.routers.qubo-portal-api.tls.certresolver: ${CERT_RESOLVER:-letsencrypt}
+      traefik.http.routers.qubo-portal-api-http.rule: Host(`${PORTAL_API_HOST}`)
+      traefik.http.routers.qubo-portal-api-http.entrypoints: ${EDGE_ENTRYPOINT_HTTP:-web}
+      traefik.http.routers.qubo-portal-api-http.middlewares: qubo-https
+      traefik.http.middlewares.qubo-https.redirectscheme.scheme: https
+      traefik.http.middlewares.qubo-https.redirectscheme.permanent: "true"
       traefik.http.services.qubo-portal-api.loadbalancer.server.port: "3340"
 
   portal:
@@ -24,8 +32,13 @@ services:
       traefik.enable: "true"
       traefik.docker.network: ${EDGE_NETWORK}
       traefik.http.routers.qubo-portal.rule: Host(`${PORTAL_HOST:?set PORTAL_HOST}`)
-      traefik.http.routers.qubo-portal.entrypoints: websecure
+      traefik.http.routers.qubo-portal.entrypoints: ${EDGE_ENTRYPOINT_HTTPS:-websecure}
       traefik.http.routers.qubo-portal.tls.certresolver: ${CERT_RESOLVER:-letsencrypt}
+      traefik.http.routers.qubo-portal-http.rule: Host(`${PORTAL_HOST}`)
+      traefik.http.routers.qubo-portal-http.entrypoints: ${EDGE_ENTRYPOINT_HTTP:-web}
+      traefik.http.routers.qubo-portal-http.middlewares: qubo-https
+      traefik.http.middlewares.qubo-https.redirectscheme.scheme: https
+      traefik.http.middlewares.qubo-https.redirectscheme.permanent: "true"
       traefik.http.services.qubo-portal.loadbalancer.server.port: "3000"
 
   marketing:
@@ -35,8 +48,13 @@ services:
       traefik.enable: "true"
       traefik.docker.network: ${EDGE_NETWORK}
       traefik.http.routers.qubo-marketing.rule: Host(`${MARKETING_HOST:?set MARKETING_HOST}`)
-      traefik.http.routers.qubo-marketing.entrypoints: websecure
+      traefik.http.routers.qubo-marketing.entrypoints: ${EDGE_ENTRYPOINT_HTTPS:-websecure}
       traefik.http.routers.qubo-marketing.tls.certresolver: ${CERT_RESOLVER:-letsencrypt}
+      traefik.http.routers.qubo-marketing-http.rule: Host(`${MARKETING_HOST}`)
+      traefik.http.routers.qubo-marketing-http.entrypoints: ${EDGE_ENTRYPOINT_HTTP:-web}
+      traefik.http.routers.qubo-marketing-http.middlewares: qubo-https
+      traefik.http.middlewares.qubo-https.redirectscheme.scheme: https
+      traefik.http.middlewares.qubo-https.redirectscheme.permanent: "true"
       traefik.http.services.qubo-marketing.loadbalancer.server.port: "3000"
 
 networks:
