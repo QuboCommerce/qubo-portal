@@ -1,0 +1,14 @@
+{
+  "name": "@qubo-portal/kb",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "build": "bun scripts/build.ts",
+    "test": "bun test src"
+  },
+  "dependencies": { "@qubo-portal/plans": "workspace:*", "@qubo/protocol": "workspace:*" },
+  "devDependencies": { "@types/bun": "latest", "typescript": "^5" }
+}

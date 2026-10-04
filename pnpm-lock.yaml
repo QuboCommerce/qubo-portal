@@ -94,6 +94,9 @@ importers:
       '@qubo-portal/db':
         specifier: workspace:*
         version: link:../db
+      '@qubo-portal/kb':
+        specifier: workspace:*
+        version: link:../kb
       '@qubo-portal/plans':
         specifier: workspace:*
         version: link:../plans
@@ -144,6 +147,22 @@ importers:
       drizzle-kit:
         specifier: ^0.31
         version: 0.31.11
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/kb:
+    dependencies:
+      '@qubo-portal/plans':
+        specifier: workspace:*
+        version: link:../plans
+      '@qubo/protocol':
+        specifier: workspace:*
+        version: link:../protocol
+    devDependencies:
+      '@types/bun':
+        specifier: latest
+        version: 1.4.2
       typescript:
         specifier: ^5
         version: 5.9.3

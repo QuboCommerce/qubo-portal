@@ -27,6 +27,7 @@ that runs in production.
 | Skill | Use when |
 | --- | --- |
 | `qubo-portal-deploy` | building images, running compose, moving the portal between machines |
+| `qubo-portal-kb` | prices, plan limits, policies, knowledgebase entries, support answers |
 
 The dev runner, naming, database and branch skills are identical to qubo-stack's; read them
 from `../../Mostapha/qubo-stack/.agents/skills/` when that checkout exists.

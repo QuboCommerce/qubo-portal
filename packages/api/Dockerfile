@@ -5,6 +5,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY packages/api/package.json ./packages/api/
 COPY packages/db/package.json ./packages/db/
 COPY packages/plans/package.json ./packages/plans/
+COPY packages/kb/package.json ./packages/kb/
 COPY packages/protocol/package.json ./packages/protocol/
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @qubo-portal/api...
 
@@ -16,6 +17,7 @@ COPY --from=deps /app/packages ./packages
 COPY packages/api ./packages/api
 COPY packages/db ./packages/db
 COPY packages/plans ./packages/plans
+COPY packages/kb ./packages/kb
 COPY packages/protocol ./packages/protocol
 
 EXPOSE 3340

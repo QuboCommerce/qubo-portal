@@ -54,9 +54,9 @@ export const FEATURE_LABELS: Record<Feature, string> = {
 export const SERVICES = {
   migration: {
     id: "migration",
-    name: "Site migration",
-    priceCents: 1499,
-    description: "We move a site between organisations or instances for you.",
+    name: "Assisted migration",
+    priceCents: 1500,
+    description: "Special cases only: we move a published site between organisations by hand, after review.",
   },
 } as const;
 export type ServiceId = keyof typeof SERVICES;
@@ -93,7 +93,7 @@ export const PLANS: Record<PlanId, PlanDef> = {
   starter: plan({
     id: "starter",
     name: "Starter",
-    priceCents: 1199,
+    priceCents: 1200,
     tagline: "A second site for the same business.",
     audience: "One business with a shop and a second site (brand, landing, B2B).",
     limits: { orgs: 1, sites: 2, instances: 1, seats: 3, customDomainsPerSite: null, cubiclesPerSite: 10 },
@@ -103,7 +103,7 @@ export const PLANS: Record<PlanId, PlanDef> = {
   growth: plan({
     id: "growth",
     name: "Growth",
-    priceCents: 2399,
+    priceCents: 2400,
     tagline: "Two businesses, four sites, B2B and languages.",
     audience: "Entrepreneurs running two companies, or one company with several sites.",
     limits: { orgs: 2, sites: 4, instances: 2, seats: 6, customDomainsPerSite: null, cubiclesPerSite: 25 },
@@ -113,7 +113,7 @@ export const PLANS: Record<PlanId, PlanDef> = {
   agency: plan({
     id: "agency",
     name: "Agency",
-    priceCents: 8999,
+    priceCents: 8900,
     tagline: "Many businesses, one panel.",
     audience: "Entrepreneurs and agencies spanning several businesses.",
     limits: { orgs: 6, sites: 18, instances: 6, seats: 20, customDomainsPerSite: null, cubiclesPerSite: null },
@@ -121,6 +121,56 @@ export const PLANS: Record<PlanId, PlanDef> = {
     includes: ["migration"],
   }),
 };
+
+/**
+ * Rules the product enforces. The knowledgebase quotes these; the code that
+ * enforces them should import them rather than restate them.
+ */
+export const POLICIES = {
+  /** A draft site (never published) can move to another organisation for free. */
+  draftSiteTransfer: "free",
+  /**
+   * A published site belongs to its organisation for good: orders, customers,
+   * invoices and history hang off it. Publishing asks to confirm the organisation.
+   * Exceptions go through the assisted migration service.
+   */
+  publishedSiteTransfer: "assisted_only",
+  /** A site slot is freed by deleting the site; nothing else returns it. */
+  freeSiteSlot: "delete_site",
+  /** Locked sites (outside the plan) stay online; only the back office closes. */
+  lockedSitesStayOnline: true,
+  /** No app-store review: anyone may publish. Automated scans flag abuse; humans review flags. */
+  publishReview: "automated_scan_then_human_on_flag",
+  /** Self-hosted instances never depend on the portal at request time. */
+  selfHostedWorksOffline: true,
+} as const;
+
+/**
+ * Where Qubo runs. Self-hosted is available today on every plan; cloud is
+ * planned. Free cloud is deliberately "better than nothing": fine for a site
+ * you need for a weekend, frustrating for a business.
+ */
+export const HOSTING = {
+  selfHosted: {
+    id: "self_hosted",
+    status: "available",
+    name: "Self-hosted",
+    summary: "Your own server, your data. Every plan, including Free.",
+  },
+  cloudFree: {
+    id: "cloud_free",
+    status: "planned",
+    name: "Free cloud",
+    summary: "We host one site for free, with a Qubo watermark and a short Qubo loading screen.",
+    limits: { sites: 1, ai: false, support: "none", customDomain: false, customisation: "limited" },
+  },
+  cloudPaid: {
+    id: "cloud_paid",
+    status: "planned",
+    name: "Cloud",
+    summary: "We host it on a paid plan: no watermark, no loading screen, support included.",
+  },
+} as const;
 
 export const PLAN_ORDER: PlanId[] = ["free", "starter", "growth", "agency"];
 
