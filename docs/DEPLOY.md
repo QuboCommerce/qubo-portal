@@ -16,9 +16,17 @@ only when the proxy runs on another machine.
 
 ## Where it can live
 
-**Next to a Qubo instance (today: Mostapha's OVH VPS).** The instance's Traefik edge already owns
-80/443. Add one dynamic file with three host routers pointing at the loopback ports above. The
-portal keeps its own Postgres container and volume, so it never touches instance data.
+**Next to a Qubo instance (today: Mostapha's OVH VPS).** The machine's Traefik edge already owns
+80/443 and discovers containers through Docker labels. Use the adapter override, which joins the
+edge network and declares the routers (no host ports):
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
+```
+
+with `EDGE_NETWORK`, `MARKETING_HOST`, `PORTAL_HOST`, `PORTAL_API_HOST` in `.env`. If the edge
+uses a file provider instead, skip the override and point three routers at the loopback ports.
+The portal keeps its own Postgres container and volume, so it never touches instance data.
 
 **Coolify.** Create a *Docker Compose* resource from this repo, paste `.env` into the resource's
 environment, and attach the three domains to `portal-api`, `portal` and `marketing` (Coolify's
