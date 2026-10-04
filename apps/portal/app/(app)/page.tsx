@@ -8,10 +8,22 @@ export default async function Dashboard() {
   const [session, orgs] = await Promise.all([getSession(), listOrgs()]);
   if (!orgs.length) {
     return (
-      <section className="max-w-md">
+      <section className="max-w-lg">
         <h1 className="text-xl font-semibold">Create your organisation</h1>
         <p className="mt-1 mb-4 text-sm text-neutral-500">The business you bill and license Qubo for. You can join or create more later.</p>
         <CreateOrg />
+        <ol className="mt-8 space-y-3 text-sm">
+          {[
+            ["Create your organisation", "Plans and billing are per organisation."],
+            ["Link your Qubo instances", "Instances → Add instance gives a one-time token you paste in Qubo Admin → Settings → Qubo Portal."],
+            ["Pick a plan when you need more", "Free covers one site per instance. Growth unlocks more sites, seats and features."],
+          ].map(([t, d], n) => (
+            <li key={t} className="flex gap-3">
+              <span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${n === 0 ? "bg-accent text-white" : "bg-neutral-200 text-neutral-600"}`}>{n + 1}</span>
+              <span><span className="font-medium">{t}</span><br /><span className="text-neutral-500">{d}</span></span>
+            </li>
+          ))}
+        </ol>
       </section>
     );
   }
