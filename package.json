@@ -13,7 +13,8 @@
     "keys:generate": "bun packages/api/scripts/generate-keys.ts",
     "protocol:sync": "node scripts/sync-protocol.mjs",
     "postinstall": "node scripts/link-env.mjs",
-    "smoke": "bun packages/api/scripts/smoke.ts"
+    "smoke": "bun packages/api/scripts/smoke.ts",
+    "stripe:setup": "pnpm --filter @qubo-portal/api stripe:setup"
   },
   "devDependencies": {
     "dotenv": "^18.0.4",
