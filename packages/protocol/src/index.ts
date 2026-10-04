@@ -100,9 +100,14 @@ export const LicenseClaims = z.object({
   /** The billing unit: the organisation that registered the instance. */
   organizationId: z.string(),
   plan: Plan,
-  /** null = unlimited. */
+  /**
+   * null = unlimited. `orgs` and `sites` are this instance's share of the account's pool
+   * (the portal subtracts what older instances report); within it, sites can be spread
+   * over the orgs in any split (4 sites in 1 org, or 3 + 1). Removing a site frees its slot.
+   */
   limits: z.object({
-    sitesPerOrg: z.number().int().nullable(),
+    orgs: z.number().int().nullable(),
+    sites: z.number().int().nullable(),
     instances: z.number().int().nullable(),
     seats: z.number().int().nullable(),
     customDomainsPerSite: z.number().int().nullable(),
@@ -120,7 +125,13 @@ export type LicenseClaims = z.infer<typeof LicenseClaims>;
  * What an instance gets with no portal link, or when its licence has expired
  * past grace. Identical to the Free plan: the portal only ever *adds*.
  */
-export const FREE_LIMITS: LicenseClaims["limits"] = { sitesPerOrg: 1, instances: 1, seats: 2, customDomainsPerSite: 1, cubiclesPerSite: 1 };
+export const FREE_LIMITS: LicenseClaims["limits"] = { orgs: 1, sites: 1, instances: 1, seats: 2, customDomainsPerSite: 1, cubiclesPerSite: 1 };
+
+/** Licence lifecycle, shared so the portal, the instance and the knowledgebase quote the same numbers. */
+export const LICENCE_TTL_SECONDS = 30 * 24 * 3600;
+export const LICENCE_GRACE_SECONDS = 7 * 24 * 3600;
+export const HEARTBEAT_INTERVAL_SECONDS = 6 * 3600;
+export const REGISTRATION_TOKEN_TTL_SECONDS = 3600;
 
 // ---------------------------------------------------------------- cubicles (apps)
 

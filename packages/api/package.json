@@ -10,7 +10,8 @@
     "dev": "bun --watch src/server.ts",
     "start": "bun src/server.ts",
     "typecheck": "tsc -p .",
-    "stripe:setup": "bun scripts/stripe-setup.ts"
+    "stripe:setup": "bun scripts/stripe-setup.ts",
+    "test": "bun test src"
   },
   "dependencies": {
     "@qubo-portal/db": "workspace:*",

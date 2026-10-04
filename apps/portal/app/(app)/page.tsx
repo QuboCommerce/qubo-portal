@@ -40,7 +40,7 @@ export default async function Dashboard() {
       <section className="grid gap-4 sm:grid-cols-3">
         <Stat label="Plan" value={data.plan.name} hint={data.billing.currentPeriodEnd ? `Renews ${day(data.billing.currentPeriodEnd)}` : data.plan.id === "free" ? "No subscription" : undefined} href="/billing" />
         <Stat label="Instances" value={`${live.length} / ${limit(data.plan.limits.instances)}`} href="/instances" />
-        <Stat label="Sites reported" value={`${sites}`} hint={`${limit(data.plan.limits.sitesPerOrg)} per organisation on each instance`} />
+        <Stat label="Sites" value={`${sites} / ${limit(data.plan.limits.sites)}`} hint={`Across up to ${limit(data.plan.limits.orgs)} ${data.plan.limits.orgs === 1 ? "organisation" : "organisations"} and all servers`} />
       </section>
 
       <section>

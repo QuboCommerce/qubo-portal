@@ -7,10 +7,11 @@ import { billingConfigured, checkoutUrl, customerPortalUrl, devPlanOverride, lic
 import { sessionOf } from "../lib/auth";
 import { newId, randomToken, sha256Hex } from "../lib/crypto";
 import { planOf } from "../lib/licence";
+import { LICENCE_GRACE_SECONDS, LICENCE_TTL_SECONDS, REGISTRATION_TOKEN_TTL_SECONDS } from "@qubo/protocol";
 
-const TOKEN_TTL_MS = 60 * 60 * 1000;
-const LICENCE_TTL_MS = 30 * 24 * 3600 * 1000;
-const GRACE_MS = 7 * 24 * 3600 * 1000;
+const TOKEN_TTL_MS = REGISTRATION_TOKEN_TTL_SECONDS * 1000;
+const LICENCE_TTL_MS = LICENCE_TTL_SECONDS * 1000;
+const GRACE_MS = LICENCE_GRACE_SECONDS * 1000;
 const portalUrl = () => (process.env.PORTAL_URL ?? process.env.BETTER_AUTH_URL ?? "").replace(/\/$/, "");
 const isManager = (role: string) => ["owner", "admin"].includes(role);
 
