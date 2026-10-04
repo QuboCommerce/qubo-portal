@@ -4,6 +4,7 @@ import { wellKnown } from "./routes/well-known";
 import { fleet } from "./routes/fleet";
 import { orgs } from "./routes/orgs";
 import { releases } from "./routes/releases";
+import { billingWebhook } from "./routes/billing";
 
 /**
  * Portal API. Unversioned: /health, /.well-known/*, /api/auth/* (Better Auth,
@@ -13,6 +14,6 @@ export const app = new Elysia()
   .get("/health", () => ({ ok: true }))
   .mount(auth.handler)
   .use(wellKnown)
-  .group("/v1", (v1) => v1.use(fleet).use(releases).use(orgs));
+  .group("/v1", (v1) => v1.use(fleet).use(releases).use(orgs).use(billingWebhook));
 
 export type App = typeof app;

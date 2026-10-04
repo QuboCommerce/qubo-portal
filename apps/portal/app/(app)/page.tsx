@@ -1,27 +1,8 @@
-import { api, getSession, listOrgs } from "@/lib/server-api";
+import Link from "next/link";
+import { getSession, listOrgs } from "@/lib/server-api";
+import { overview } from "@/lib/org";
+import { ago, day, instanceState, limit } from "@/lib/format";
 import { CreateOrg } from "@/components/create-org";
-import { OrgSwitcher } from "@/components/org-switcher";
-import { RegisterInstance } from "@/components/register-instance";
-
-type Overview = {
-  plan: { id: string; name: string; limits: Record<string, number | null> };
-  role: string;
-  instances: {
-    id: string;
-    name: string;
-    appVersion: string;
-    channel: string;
-    lastSeenAt: string | null;
-    lastHealth: Record<string, boolean> | null;
-    revokedAt: string | null;
-  }[];
-};
-
-const ago = (iso: string | null) => {
-  if (!iso) return "never";
-  const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
-  return s < 90 ? `${s}s ago` : s < 5400 ? `${Math.round(s / 60)}m ago` : s < 129600 ? `${Math.round(s / 3600)}h ago` : `${Math.round(s / 86400)}d ago`;
-};
 
 export default async function Dashboard() {
   const [session, orgs] = await Promise.all([getSession(), listOrgs()]);
@@ -35,45 +16,62 @@ export default async function Dashboard() {
     );
   }
   const active = orgs.find((o) => o.id === session?.session.activeOrganizationId) ?? orgs[0];
-  const { data } = await api<Overview>(`/v1/orgs/${active.id}/overview`);
-  const canManage = data && ["owner", "admin"].includes(data.role);
+  const data = await overview(active.id);
+  if (!data) return <p className="text-sm text-red-600">Could not load this organisation.</p>;
+  const live = data.instances.filter((i) => !i.revokedAt);
+  const sites = live.reduce((n, i) => n + (i.lastUsage?.sites ?? 0), 0);
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">{active.name}</h1>
-          <p className="text-sm text-neutral-500">
-            {data?.plan.name ?? "Free"} plan · instances {data?.instances.filter((i) => !i.revokedAt).length ?? 0}/{data?.plan.limits.instances ?? "∞"}
-          </p>
-        </div>
-        <OrgSwitcher orgs={orgs} activeId={active.id} />
-      </div>
+      <h1 className="text-xl font-semibold">{active.name}</h1>
+
+      <section className="grid gap-4 sm:grid-cols-3">
+        <Stat label="Plan" value={data.plan.name} hint={data.billing.currentPeriodEnd ? `Renews ${day(data.billing.currentPeriodEnd)}` : data.plan.id === "free" ? "No subscription" : undefined} href="/billing" />
+        <Stat label="Instances" value={`${live.length} / ${limit(data.plan.limits.instances)}`} href="/instances" />
+        <Stat label="Sites reported" value={`${sites}`} hint={`${limit(data.plan.limits.sitesPerOrg)} per organisation on each instance`} />
+      </section>
 
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-medium">Instances</h2>
-          {canManage && <RegisterInstance orgId={active.id} portalApiUrl={process.env.PORTAL_API_URL ?? ""} />}
+          <Link href="/instances" className="text-sm text-accent">Manage</Link>
         </div>
-        {data?.instances.length ? (
+        {live.length ? (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
-            {data.instances.map((i) => {
-              const healthy = i.lastHealth && Object.values(i.lastHealth).every(Boolean);
+            {live.slice(0, 5).map((i) => {
+              const st = instanceState(i);
               return (
-                <li key={i.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                  <div>
-                    <p className="font-medium">{i.name} {i.revokedAt && <span className="text-red-600">(revoked)</span>}</p>
-                    <p className="text-neutral-500">{i.id} · v{i.appVersion} · {i.channel}</p>
-                  </div>
-                  <span className={healthy ? "text-emerald-600" : "text-neutral-500"}>{i.lastSeenAt ? (healthy ? "healthy" : "degraded") : "waiting"} · {ago(i.lastSeenAt)}</span>
+                <li key={i.id}>
+                  <Link href={`/instances/${i.id}`} className="flex items-center justify-between px-4 py-3 text-sm hover:bg-neutral-50">
+                    <span className="font-medium">{i.name}</span>
+                    <span className={st.tone}>{st.label} · {ago(i.lastSeenAt)}</span>
+                  </Link>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="rounded-lg border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">No instances yet. Register your first Qubo install to receive its licence and updates.</p>
+          <div className="rounded-lg border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
+            No instances linked yet. Qubo runs fine on its own; linking adds your plan&apos;s limits, update notices and fleet health.{" "}
+            <Link href="/instances" className="font-medium text-accent">Link your first instance</Link>
+          </div>
         )}
       </section>
     </div>
+  );
+}
+
+function Stat({ label, value, hint, href }: { label: string; value: string; hint?: string; href?: string }) {
+  const body = (
+    <>
+      <p className="text-xs font-medium text-neutral-500">{label}</p>
+      <p className="mt-1 text-lg font-semibold">{value}</p>
+      {hint && <p className="mt-0.5 text-xs text-neutral-500">{hint}</p>}
+    </>
+  );
+  return href ? (
+    <Link href={href} className="rounded-lg border border-neutral-200 bg-white p-4 hover:border-neutral-300">{body}</Link>
+  ) : (
+    <div className="rounded-lg border border-neutral-200 bg-white p-4">{body}</div>
   );
 }

@@ -19,7 +19,8 @@
         "PORTAL_URL": "{url:portal}",
         "PORTAL_API_URL": "{url:api}",
         "BETTER_AUTH_URL": "{url:portal}",
-        "TRUSTED_ORIGINS": "{url:portal}"
+        "TRUSTED_ORIGINS": "{url:portal}",
+        "PORTAL_DEV_PLAN_OVERRIDE": "1"
       }
     },
     "portal": {

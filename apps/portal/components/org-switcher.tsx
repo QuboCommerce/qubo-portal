@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth-client";
 
 export function OrgSwitcher({ orgs, activeId }: { orgs: { id: string; name: string }[]; activeId: string }) {
   const router = useRouter();
-  if (orgs.length < 2) return null;
+  if (orgs.length < 2) return <span className="text-sm font-medium">{orgs[0]?.name}</span>;
   return (
     <select
       value={activeId}
