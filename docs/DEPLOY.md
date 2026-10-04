@@ -52,8 +52,24 @@ Then add the edge routes and DNS. Nothing else reads the hostnames.
 ## Redeploy
 
 ```sh
-git pull && docker compose up -d --build
+scripts/deploy.sh            # resets to origin/main, rebuilds, restarts, prunes old images
 ```
+
+The script adds `docker-compose.traefik.yml` automatically when `.env` sets `EDGE_NETWORK`.
+
+## Current production
+
+Mostapha's OVH VPS (`141.227.165.96`, user `dev`), checkout at `/home/dev/qubo/qubo-portal`,
+sharing the Traefik edge of the `tailg` compose project (`EDGE_NETWORK=tailg_wooster-network`).
+
+| Host | Service |
+| --- | --- |
+| `qubo.by-ali.dev` | marketing |
+| `portal.qubo.by-ali.dev` | portal |
+| `api.portal.qubo.by-ali.dev` | portal-api |
+
+Deploy key: read-only `qubo-portal@vps-04d736b1` on the GitHub repo. Moving the portal
+elsewhere = copy `.env` + a `pg_dump`, repoint DNS; instances only know `PORTAL_URL`.
 
 Migrations run on API start. They are forward-only; back up first (below) for anything
 that drops or rewrites data.
