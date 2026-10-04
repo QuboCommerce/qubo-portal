@@ -34,7 +34,7 @@ proxy handles TLS; leave `PORTAL_BIND` unset). Nothing in the repo is Coolify-sp
 
 **The dev box (dev and prod on one machine).** Prod runs from compose on the 334x ports; dev runs
 through `qd` on the 40x0 slots. They never share ports, databases or env files. The edge routes
-`*.dev.by-ali.dev` to the slots and the production hosts to the compose ports.
+`*.qubo.dev.by-ali.dev` to the portal slots (devDigit 5, runs alongside qubo-stack) and the production hosts to the compose ports.
 
 ## First deploy
 

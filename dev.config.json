@@ -1,9 +1,9 @@
 {
-  "$comment": "Dev runner config for scripts/dev/qd. Same project-agnostic slots as every project on the dev box: 1 app (dev.by-ali.dev), 2 sites (<site>.dev.by-ali.dev; marketing uses www), 3 api (api.dev.by-ali.dev). Ports = <devDigit>0<slot>0. Only one project owns the slots at a time: `qd down` in the other repo first. Per-machine overrides: .qubo/dev.local.json (gitignored).",
+  "$comment": "Dev runner config for scripts/dev/qd. The portal has its own slots (devDigit 5 \u2192 5010/5020/5030) and hosts under qubo.dev.by-ali.dev, so it runs alongside qubo-stack (devDigit 4, dev.by-ali.dev). Edge routes: ~/infra/edge/dynamic/qubo-dev.yml. Per-machine overrides: .qubo/dev.local.json (gitignored).",
   "project": "qubo-portal",
   "session": "qubo-portal",
-  "devDigit": 4,
-  "sitesBaseDomain": "dev.by-ali.dev",
+  "devDigit": 5,
+  "sitesBaseDomain": "qubo.dev.by-ali.dev",
   "services": {
     "api": {
       "cwd": "packages/api",
@@ -14,7 +14,7 @@
       ],
       "portSlot": 3,
       "health": "/health",
-      "host": "api.dev.by-ali.dev",
+      "host": "api.qubo.dev.by-ali.dev",
       "env": {
         "PORTAL_URL": "{url:portal}",
         "PORTAL_API_URL": "{url:api}",
@@ -36,7 +36,7 @@
       ],
       "portSlot": 1,
       "health": "/login",
-      "host": "dev.by-ali.dev",
+      "host": "portal.qubo.dev.by-ali.dev",
       "env": {
         "PORTAL_API_INTERNAL_URL": "{internal:api}",
         "BETTER_AUTH_URL": "{url:portal}",
@@ -57,7 +57,7 @@
       ],
       "portSlot": 2,
       "health": "/",
-      "host": "www.dev.by-ali.dev",
+      "host": "qubo.dev.by-ali.dev",
       "env": {
         "PORTAL_URL": "{url:portal}",
         "SITE_URL": "{url:marketing}",

@@ -4,10 +4,10 @@ The Qubo control plane and marketing site. Private.
 
 | App | Prod host | Dev host (slot) | What |
 | --- | --- | --- | --- |
-| `apps/marketing` | `qubo.by-ali.dev` | `www.dev.by-ali.dev` (2) | Static marketing + pricing |
-| `apps/portal` | `portal.qubo.by-ali.dev` | `dev.by-ali.dev` (1) | Accounts, organisations, instances, licences |
-| `packages/api` | `api.portal.qubo.by-ali.dev` | `api.dev.by-ali.dev` (3) | Elysia/Bun: Better Auth, fleet protocol, JWKS |
-| Supabase Studio | `db.portal.qubo.by-ali.dev` (auth only) | `db.dev.by-ali.dev` | |
+| `apps/marketing` | `qubo.by-ali.dev` | `qubo.dev.by-ali.dev` (5020) | Static marketing + pricing |
+| `apps/portal` | `portal.qubo.by-ali.dev` | `portal.qubo.dev.by-ali.dev` (5010) | Accounts, organisations, instances, licences |
+| `packages/api` | `api.portal.qubo.by-ali.dev` | `api.qubo.dev.by-ali.dev` (5030) | Elysia/Bun: Better Auth, fleet protocol, JWKS |
+| Supabase Studio | `db.portal.qubo.by-ali.dev` (auth only) | `db.qubo.dev.by-ali.dev` | |
 
 No hostname is hardcoded: everything comes from env (`.env.example`). Qubo instances
 only know `PORTAL_URL`, so moving the portal to a product domain is a config change.
