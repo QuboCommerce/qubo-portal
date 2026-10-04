@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@qubo-portal/db": "workspace:*",
+    "@qubo-portal/kb": "workspace:*",
     "@qubo-portal/plans": "workspace:*",
     "@qubo/protocol": "workspace:*",
     "better-auth": "^1.6",
