@@ -59,7 +59,7 @@ The script adds `docker-compose.traefik.yml` automatically when `.env` sets `EDG
 
 ## Current production
 
-Mostapha's OVH VPS (`141.227.165.96`, user `dev`), checkout at `/home/dev/qubo/qubo-portal`,
+Mostapha's OVH VPS (`141.227.165.96`, user `qubo`), checkout at `/home/qubo/qubo-portal`,
 behind Coolify's Traefik (`EDGE_NETWORK=coolify`, `EDGE_ENTRYPOINT_HTTPS=https`,
 `EDGE_ENTRYPOINT_HTTP=http`). Coolify UI: `ssh -N -L 8000:127.0.0.1:8000 qubo@<ip>` → http://localhost:8000.
 
@@ -69,7 +69,7 @@ behind Coolify's Traefik (`EDGE_NETWORK=coolify`, `EDGE_ENTRYPOINT_HTTPS=https`,
 | `portal.qubo.by-ali.dev` | portal |
 | `api.portal.qubo.by-ali.dev` | portal-api |
 
-Deploy key: read-only `qubo-portal@vps-04d736b1` on the GitHub repo. Moving the portal
+Deploy key: read-only `qubo@vps-04d736b1` on the GitHub repo. `tailg-app` shares the same edge (compose at `/home/dev/react/tailg`, old `wooster-traefik` kept under profile `legacy-edge`). Moving the portal
 elsewhere = copy `.env` + a `pg_dump`, repoint DNS; instances only know `PORTAL_URL`.
 
 Migrations run on API start. They are forward-only; back up first (below) for anything
