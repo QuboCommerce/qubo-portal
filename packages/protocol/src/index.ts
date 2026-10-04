@@ -116,6 +116,12 @@ export const LicenseClaims = z.object({
 });
 export type LicenseClaims = z.infer<typeof LicenseClaims>;
 
+/**
+ * What an instance gets with no portal link, or when its licence has expired
+ * past grace. Identical to the Free plan: the portal only ever *adds*.
+ */
+export const FREE_LIMITS: LicenseClaims["limits"] = { sitesPerOrg: 1, instances: 1, seats: 2, customDomainsPerSite: 1, cubiclesPerSite: 1 };
+
 // ---------------------------------------------------------------- cubicles (apps)
 
 export const AppScope = z.enum([
