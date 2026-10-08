@@ -39,7 +39,7 @@ through `qd` on the 40x0 slots. They never share ports, databases or env files. 
 ## First deploy
 
 ```sh
-git clone git@github.com:aliaddas/qubo-portal.git && cd qubo-portal
+git clone https://github.com/QuboCommerce/qubo-portal.git && cd qubo-portal
 cp .env.example .env            # fill: POSTGRES_PASSWORD, BETTER_AUTH_SECRET, PORTAL_URL,
                                 #       PORTAL_API_URL, SITE_URL, PORTAL_SIGNING_KEYS
 pnpm keys:generate              # prints PORTAL_SIGNING_KEYS; paste it into .env

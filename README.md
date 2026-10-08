@@ -54,3 +54,8 @@ so only one project runs at a time: `pnpm qd down` in the other repo first.
 Coolify on the rented VPS: three services from this repo (`apps/marketing`, `apps/portal`,
 `packages/api`), plus a Supabase. Set every variable in `.env.example`; generate
 `PORTAL_SIGNING_KEYS` once with `pnpm keys:generate` and keep it in Coolify secrets only.
+
+## Licence
+
+[FSL-1.1-MIT](LICENSE.md): read, run and modify it for your own use; don't offer it as a
+competing hosted service. Each release becomes MIT two years after it is published.
