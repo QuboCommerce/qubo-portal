@@ -50,6 +50,8 @@ services:
     build:
       context: .
       dockerfile: apps/portal/Dockerfile
+      args:
+        PORTAL_API_INTERNAL_URL: http://portal-api:3340
     restart: unless-stopped
     ports:
       - "${PORTAL_BIND:-127.0.0.1}:${PORTAL_PORT:-3341}:3000"

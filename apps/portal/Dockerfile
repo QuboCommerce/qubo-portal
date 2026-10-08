@@ -16,6 +16,10 @@ COPY --from=deps /app/apps/portal/node_modules ./apps/portal/node_modules
 COPY --from=deps /app/packages ./packages
 COPY . .
 # Public URLs are read at request time, not inlined; only NEXT_PUBLIC_* build args would be.
+# Rewrites are the exception: next.config.ts bakes their destination into the build, so the
+# API's in-network address must be set here or /api/auth points at the portal container itself.
+ARG PORTAL_API_INTERNAL_URL=http://portal-api:3340
+ENV PORTAL_API_INTERNAL_URL=$PORTAL_API_INTERNAL_URL
 RUN pnpm --filter @qubo-portal/portal build
 
 FROM base AS runner
