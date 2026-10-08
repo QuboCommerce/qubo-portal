@@ -3,20 +3,26 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "start": "bun src/server.ts",
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "stripe:setup": "bun scripts/stripe-setup.ts",
+    "test": "bun test src"
   },
   "dependencies": {
     "@qubo-portal/db": "workspace:*",
+    "@qubo-portal/kb": "workspace:*",
     "@qubo-portal/plans": "workspace:*",
     "@qubo/protocol": "workspace:*",
     "better-auth": "^1.6",
     "drizzle-orm": "^0.45.2",
     "elysia": "^1.4",
     "jose": "^6",
+    "stripe": "^23.0.0",
     "zod": "^4.4"
   },
   "devDependencies": {

@@ -4,10 +4,10 @@ The Qubo control plane and marketing site. Private.
 
 | App | Prod host | Dev host (slot) | What |
 | --- | --- | --- | --- |
-| `apps/marketing` | `qubo.by-ali.dev` | `www.dev.by-ali.dev` (2) | Static marketing + pricing |
-| `apps/portal` | `portal.qubo.by-ali.dev` | `dev.by-ali.dev` (1) | Accounts, organisations, instances, licences |
-| `packages/api` | `api.portal.qubo.by-ali.dev` | `api.dev.by-ali.dev` (3) | Elysia/Bun: Better Auth, fleet protocol, JWKS |
-| Supabase Studio | `db.portal.qubo.by-ali.dev` (auth only) | `db.dev.by-ali.dev` | |
+| `apps/marketing` | `qubo.by-ali.dev` | `qubo.dev.by-ali.dev` (5020) | Static marketing + pricing |
+| `apps/portal` | `portal.qubo.by-ali.dev` | `portal.qubo.dev.by-ali.dev` (5010) | Accounts, organisations, instances, licences |
+| `packages/api` | `api.portal.qubo.by-ali.dev` | `api.qubo.dev.by-ali.dev` (5030) | Elysia/Bun: Better Auth, fleet protocol, JWKS |
+| Supabase Studio | `db.portal.qubo.by-ali.dev` (auth only) | `db.qubo.dev.by-ali.dev` | |
 
 No hostname is hardcoded: everything comes from env (`.env.example`). Qubo instances
 only know `PORTAL_URL`, so moving the portal to a product domain is a config change.
@@ -54,3 +54,8 @@ so only one project runs at a time: `pnpm qd down` in the other repo first.
 Coolify on the rented VPS: three services from this repo (`apps/marketing`, `apps/portal`,
 `packages/api`), plus a Supabase. Set every variable in `.env.example`; generate
 `PORTAL_SIGNING_KEYS` once with `pnpm keys:generate` and keep it in Coolify secrets only.
+
+## Licence
+
+[FSL-1.1-MIT](LICENSE.md): read, run and modify it for your own use; don't offer it as a
+competing hosted service. Each release becomes MIT two years after it is published.

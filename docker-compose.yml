@@ -40,6 +40,8 @@ services:
       PORTAL_SIGNING_KEYS: ${PORTAL_SIGNING_KEYS:?run pnpm keys:generate}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_AUTOMATIC_TAX: ${STRIPE_AUTOMATIC_TAX:-0}
+      PORTAL_STAFF_EMAILS: ${PORTAL_STAFF_EMAILS:-}
     depends_on:
       portal-postgres:
         condition: service_healthy

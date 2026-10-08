@@ -56,7 +56,7 @@ importers:
         version: link:../../packages/plans
       better-auth:
         specifier: ^1.6
-        version: 1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       next:
         specifier: ^16.3
         version: 16.3.8(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -94,6 +94,9 @@ importers:
       '@qubo-portal/db':
         specifier: workspace:*
         version: link:../db
+      '@qubo-portal/kb':
+        specifier: workspace:*
+        version: link:../kb
       '@qubo-portal/plans':
         specifier: workspace:*
         version: link:../plans
@@ -102,7 +105,7 @@ importers:
         version: link:../protocol
       better-auth:
         specifier: ^1.6
-        version: 1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9)
@@ -112,6 +115,9 @@ importers:
       jose:
         specifier: ^6
         version: 6.2.12
+      stripe:
+        specifier: ^23.0.0
+        version: 23.0.0(@types/node@22.20.5)
       zod:
         specifier: ^4.4
         version: 4.6.5
@@ -141,6 +147,22 @@ importers:
       drizzle-kit:
         specifier: ^0.31
         version: 0.31.11
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/kb:
+    dependencies:
+      '@qubo-portal/plans':
+        specifier: workspace:*
+        version: link:../plans
+      '@qubo/protocol':
+        specifier: workspace:*
+        version: link:../protocol
+    devDependencies:
+      '@types/bun':
+        specifier: latest
+        version: 1.4.2
       typescript:
         specifier: ^5
         version: 5.9.3
@@ -1565,6 +1587,15 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
+  stripe@23.0.0:
+    resolution: {integrity: sha512-MDE2A5ZVVluYURORaZEVghSmnLJc3w6aHAlZSxDQMsOjOb3V0O6ro/CiaeFlJS4N7uIVmsg98ocRsPmUK6YfyA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   strtok3@10.3.5:
     resolution: {integrity: sha512-ki4hZQfh5rX0QDLLkOCj+h+CVNkqmp/CMf8v8kZpkNVK6jGQooMytqzLZYUVYIZcFZ6yDB70EfD8POcFXiF5oA==}
     engines: {node: '>=18'}
@@ -2210,7 +2241,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.27: {}
 
-  better-auth@1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  better-auth@1.7.7(drizzle-kit@0.31.11)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))(next@16.3.8(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       '@better-auth/core': 1.7.7(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.6.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.4)
       '@better-auth/drizzle-adapter': 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.6.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.4))(@better-auth/utils@0.4.2)(drizzle-orm@0.45.3(bun-types@1.4.2)(gel@2.2.1)(kysely@0.29.6)(postgres@3.4.9))
@@ -2603,6 +2634,10 @@ snapshots:
       source-map: 0.6.1
 
   source-map@0.6.1: {}
+
+  stripe@23.0.0(@types/node@22.20.5):
+    optionalDependencies:
+      '@types/node': 22.20.5
 
   strtok3@10.3.5:
     dependencies:

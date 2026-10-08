@@ -48,8 +48,8 @@ export default function Home() {
         </section>
 
         <section id="pricing" className="mx-auto max-w-6xl px-6 py-24">
-          <h2 className="text-center text-3xl font-semibold tracking-tight">Pricing per organisation</h2>
-          <p className="mt-3 text-center text-neutral-600">Collaborators are always free. 0% transaction fees on every plan.</p>
+          <h2 className="text-center text-3xl font-semibold tracking-tight">Simple pricing</h2>
+          <p className="mt-3 text-center text-neutral-600">0% transaction fees on every plan. Prices exclude VAT.</p>
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {PLAN_ORDER.map((id) => {
               const p = PLANS[id];
@@ -59,7 +59,7 @@ export default function Home() {
                   <p className="mt-1 text-sm text-neutral-500">{p.tagline}</p>
                   <p className="mt-6 text-3xl font-semibold">
                     {formatPrice(p)}
-                    {p.per && <span className="text-sm font-normal text-neutral-500"> /{p.per === "org" ? "org" : "account"}/mo</span>}
+                    {p.priceCents !== null && <span className="text-sm font-normal text-neutral-500"> /month</span>}
                   </p>
                   <ul className="mt-6 flex flex-1 flex-col gap-2 text-sm">
                     {p.highlights.map((h) => <li key={h}>✓ {h}</li>)}

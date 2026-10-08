@@ -34,12 +34,12 @@ proxy handles TLS; leave `PORTAL_BIND` unset). Nothing in the repo is Coolify-sp
 
 **The dev box (dev and prod on one machine).** Prod runs from compose on the 334x ports; dev runs
 through `qd` on the 40x0 slots. They never share ports, databases or env files. The edge routes
-`*.dev.by-ali.dev` to the slots and the production hosts to the compose ports.
+`*.qubo.dev.by-ali.dev` to the portal slots (devDigit 5, runs alongside qubo-stack) and the production hosts to the compose ports.
 
 ## First deploy
 
 ```sh
-git clone git@github.com:aliaddas/qubo-portal.git && cd qubo-portal
+git clone https://github.com/QuboCommerce/qubo-portal.git && cd qubo-portal
 cp .env.example .env            # fill: POSTGRES_PASSWORD, BETTER_AUTH_SECRET, PORTAL_URL,
                                 #       PORTAL_API_URL, SITE_URL, PORTAL_SIGNING_KEYS
 pnpm keys:generate              # prints PORTAL_SIGNING_KEYS; paste it into .env
@@ -74,6 +74,26 @@ elsewhere = copy `.env` + a `pg_dump`, repoint DNS; instances only know `PORTAL_
 
 Migrations run on API start. They are forward-only; back up first (below) for anything
 that drops or rewrites data.
+
+## Billing (Stripe)
+
+Plans live in `packages/plans` (single source for marketing, licences and Stripe). Billing unit =
+organisation. Without Stripe keys the portal works and `/billing` shows plans read-only.
+
+1. Stripe dashboard (test mode first): copy the secret key into `.env` as `STRIPE_SECRET_KEY`.
+2. `STRIPE_SECRET_KEY=… pnpm stripe:setup` — creates one product per paid plan and a monthly EUR
+   price with lookup key `qubo_<plan>_monthly`. Idempotent; a price change moves the lookup key to a
+   new price (existing subscribers keep theirs until migrated).
+3. Developers → Webhooks → add endpoint `https://api.portal.qubo.by-ali.dev/v1/stripe/webhook`
+   with events `checkout.session.completed`, `customer.subscription.created`, `.updated`,
+   `.deleted`, `.paused`, `.resumed`. Put its signing secret in `STRIPE_WEBHOOK_SECRET`.
+4. Settings → Billing → Customer portal: enable invoices, payment method updates, cancellation
+   and plan switching between the Qubo products.
+5. `docker compose up -d portal-api` to pick up the env.
+
+Mapping: `active`/`trialing`/`past_due` → plan from the price lookup key; anything terminal → Free.
+Instances get the new plan on their next heartbeat (≤ 6 h, or "Refresh now" in the admin).
+Local webhook testing: `stripe listen --forward-to https://api.qubo.dev.by-ali.dev/v1/stripe/webhook`.
 
 ## Backup and restore
 
